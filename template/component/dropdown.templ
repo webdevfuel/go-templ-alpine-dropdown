@@ -6,14 +6,11 @@ import (
 )
 
 type Dropdown struct {
-	Label      string
-	Attributes templ.Attributes
+	Label string
 }
 
 func NewDropdown(opts ...func(*Dropdown)) *Dropdown {
-	d := &Dropdown{
-		Attributes: templ.Attributes{},
-	}
+	d := &Dropdown{}
 	for _, o := range opts {
 		o(d)
 	}
@@ -23,12 +20,6 @@ func NewDropdown(opts ...func(*Dropdown)) *Dropdown {
 func WithDropdownLabel(l string) func(*Dropdown) {
 	return func(d *Dropdown) {
 		d.Label = l
-	}
-}
-
-func WithDropdownAttribute(k string, v any) func(*Dropdown) {
-	return func(d *Dropdown) {
-		d.Attributes[k] = v
 	}
 }
 
