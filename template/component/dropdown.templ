@@ -1,0 +1,120 @@
+package component
+
+import (
+	"context"
+	"io"
+)
+
+type Dropdown struct {
+	Label      string
+	Attributes templ.Attributes
+}
+
+func NewDropdown(opts ...func(*Dropdown)) *Dropdown {
+	d := &Dropdown{
+		Attributes: templ.Attributes{},
+	}
+	for _, o := range opts {
+		o(d)
+	}
+	return d
+}
+
+func WithDropdownLabel(l string) func(*Dropdown) {
+	return func(d *Dropdown) {
+		d.Label = l
+	}
+}
+
+func WithDropdownAttribute(k string, v any) func(*Dropdown) {
+	return func(d *Dropdown) {
+		d.Attributes[k] = v
+	}
+}
+
+func (d *Dropdown) Render(ctx context.Context, w io.Writer) error {
+	return dropdown(d).Render(ctx, w)
+}
+
+templ dropdown(d *Dropdown) {
+	<div class="relative inline-flex" x-data="{ open: false }">
+		<button
+			@click="open = !open"
+			@click.outside="open = false"
+			type="button"
+			class="text-white p-2 border border-neutral-700 rounded-lg bg-neutral-900 hover:bg-white/5"
+		>
+			{ d.Label }
+		</button>
+		<div
+			x-transition:enter="transition ease-out duration-100"
+			x-transition:enter-start="opacity-0 -translate-y-2"
+			x-transition:enter-end="opacity-100 translate-y-0"
+			x-transition:leave="transition ease-in duration-100"
+			x-transition:leave-start="opacity-100 translate-y-0"
+			x-transition:leave-end="opacity-0 -translate-y-2"
+			x-cloak
+			x-show="open"
+			class="absolute top-full left-1/2 -translate-x-1/2 w-48 border border-neutral-700 rounded-lg shadow-sm p-2 bg-neutral-800 z-50 mt-2"
+		>
+			{ children... }
+		</div>
+	</div>
+}
+
+type DropdownItemAs int
+
+const (
+	DropdownItemAsButton DropdownItemAs = iota
+	DropdownItemAsHyperlink
+)
+
+type DropdownItem struct {
+	As         DropdownItemAs
+	Attributes templ.Attributes
+}
+
+func NewDropdownItem(opts ...func(*DropdownItem)) *DropdownItem {
+	d := &DropdownItem{
+		Attributes: templ.Attributes{},
+	}
+	for _, o := range opts {
+		o(d)
+	}
+	return d
+}
+
+func WithDropdownItemAs(a DropdownItemAs) func(*DropdownItem) {
+	return func(d *DropdownItem) {
+		d.As = a
+	}
+}
+
+func WithDropdownItemAttribute(k string, v any) func(*DropdownItem) {
+	return func(d *DropdownItem) {
+		d.Attributes[k] = v
+	}
+}
+
+func (d *DropdownItem) Render(ctx context.Context, w io.Writer) error {
+	return dropdownItem(d).Render(ctx, w)
+}
+
+templ dropdownItem(d *DropdownItem) {
+	if d.As == DropdownItemAsButton {
+		<button
+			class="w-full flex hover:bg-neutral-700 rounded-md p-2 text-neutral-300 hover:text-white"
+			{ d.Attributes... }
+		>
+			{ children... }
+		</button>
+	}
+	if d.As == DropdownItemAsHyperlink {
+		<a
+			class="w-full flex hover:bg-neutral-700 rounded-md p-2 text-neutral-300 hover:text-white"
+			{ d.Attributes... }
+		>
+			{ children... }
+		</a>
+	}
+}
