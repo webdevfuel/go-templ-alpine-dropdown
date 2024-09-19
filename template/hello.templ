@@ -1,9 +1,29 @@
 package template
 
-import "github.com/webdevfuel/go-templ-alpine-dropdown/template/layout"
+import (
+	"github.com/webdevfuel/go-templ-alpine-dropdown/template/component"
+	"github.com/webdevfuel/go-templ-alpine-dropdown/template/layout"
+)
 
 templ Hello(name string) {
 	@layout.Base() {
-		<div class="text-2xl">Hello, { name }!</div>
+		@component.NewDropdown(
+			component.WithDropdownLabel("Open"),
+		) {
+			@component.NewDropdownItem(
+				component.WithDropdownItemAttribute("onclick", "console.log('clicked')"),
+			) {
+				Item 1
+			}
+			@component.NewDropdownItem(
+				component.WithDropdownItemAs(component.DropdownItemAsHyperlink),
+				component.WithDropdownItemAttribute("href", "/clicked"),
+			) {
+				Item 2
+			}
+			@component.NewDropdownItem() {
+				Item 3
+			}
+		}
 	}
 }
